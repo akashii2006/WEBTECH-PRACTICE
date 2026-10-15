@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Student Grades</title>
+  <style>
+    body { font-family: Arial; background: beige; padding: 20px; }
+    .card { max-width: 650px; margin: auto; background: white; padding: 20px; border-radius: 10px; }
+    h1 { text-align: center; }
+    input, button { padding: 10px; border: 2px solid teal; border-radius: 20px; }
+    button { background: teal; color: white; }
+    .outline { background: white; color: teal; }
+    .remove { background: white; color: red; border-color: red; margin-top: 15px; }
+    table { width: 100%; margin-top: 20px; text-align: center; }
+    th { background: teal; color: white; }
+    .good { color: green; }
+    .bad { color: red; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Student Grades</h1>
+
+    <div class="row">
+      <input id="name" placeholder="Student name">
+      <button onclick="addStudent()">Add</button>
+      <button onclick="addGrade()">Grade</button>
+      <button class="outline" onclick="clearInput()">Clear</button>
+    </div>
+
+    <table>
+      <thead><tr><th>Name</th><th>Grades</th><th>Average</th><th>Remarks</th></tr></thead>
+      <tbody id="list"></tbody>
+    </table>
+    <button class="remove" onclick="removeStudent()">Remove Last</button>
+  </div>
+
+  <script>
+    const students = [];
+    const $ = id => document.getElementById(id);
+
+    // input: add the name in the box to the array
+    function addStudent() {
+      const name = $("name").value;
+      if (name === "") return alert("Please enter a name.");
+      if (/\d/.test(name)) return alert("Name must not contain numbers.");
+      students.push({ name, grades: [] });
+      showStudents();
+    }
+
+    // prompt: ask for a grade, then push it to the student named in the box
+    function addGrade() {
+      const student = students.find(s => s.name === $("name").value);
+      if (!student) return alert("Student not found. Type a name and click Add first.");
+      const grade = prompt("Enter grade for " + student.name + " (0-100):");
+      if (grade === null) return;
+      if (grade === "" || isNaN(grade) || grade < 0 || grade > 100) return alert("Enter a grade from 0 to 100.");
+      student.grades.push(Number(grade));
+      showStudents();
+    }
+
+    function clearInput() {
+      $("name").value = "";
+    }
+
+    // confirm: remove the last student
+    function removeStudent() {
+      if (students.length === 0) return alert("There are no students to remove.");
+      const last = students[students.length - 1];
+      if (confirm("Do you really want to remove " + last.name + "?")) {
+        students.pop();
+        showStudents();
+      }
+    }
+
+    // output: build the table rows
+    function showStudents() {
+      $("list").innerHTML = "";
+      students.forEach(s => {
+        let average = "-", remarks = "-", style = "";
+        if (s.grades.length > 0) {
+          const avg = s.grades.reduce((sum, g) => sum + g, 0) / s.grades.length;
+          average = avg.toFixed(1);
+          if (avg >= 90) {
+            remarks = "Excellent";
+            style = "good";
+          } else if (avg >= 75) {
+            remarks = "Passed";
+            style = "good";
+          } else {
+            remarks = "Failed";
+            style = "bad";
+          }
+        }
+        $("list").innerHTML += `<tr><td>${s.name}</td><td>${s.grades.join(", ") || "-"}</td>
+          <td>${average}</td><td class="${style}">${remarks}</td></tr>`;
+      });
+    }
+  </script>
+</body>
+</html>
