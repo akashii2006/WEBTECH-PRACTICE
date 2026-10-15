@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Simple Grading System</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 750px; margin: 20px auto; padding: 0 10px; }
+    input, button { padding: 6px; margin: 3px 0; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid #999; padding: 6px; text-align: left; }
+  </style>
+</head>
+<body>
+  <h1>Grading System</h1>
+
+  <input type="text" id="name" placeholder="Student name">
+  <input type="number" id="math" placeholder="Math">
+  <input type="number" id="english" placeholder="English">
+  <input type="number" id="science" placeholder="Science">
+  <br>
+  <button onclick="addStudent()">Add Student</button>
+  <button onclick="removeStudent()">Remove Student</button>
+  <button onclick="computeAverage()">Compute Average</button>
+
+  <table>
+    <tr>
+      <th>Name</th><th>Math</th><th>English</th><th>Science</th>
+      <th>Average</th><th>Letter</th><th>Remarks</th>
+    </tr>
+    <tbody id="list"></tbody>
+  </table>
+
+  <script>
+    const students = [];
+
+    function getLetter(grade) {
+      if (grade >= 90) return "A";
+      else if (grade >= 80) return "B";
+      else if (grade >= 70) return "C";
+      else if (grade >= 60) return "D";
+      else return "F";
+    }
+
+    function addStudent() {
+      const name = document.getElementById("name").value;
+      const math = Number(document.getElementById("math").value);
+      const english = Number(document.getElementById("english").value);
+      const science = Number(document.getElementById("science").value);
+
+      if (name === "") {
+        alert("Please enter a name.");
+        return;
+      }
+      if (math < 0 || math > 100 || english < 0 || english > 100 || science < 0 || science > 100) {
+        alert("Grades must be from 0 to 100.");
+        return;
+      }
+
+      students.push({ name: name, math: math, english: english, science: science, average: null });
+
+      document.getElementById("name").value = "";
+      document.getElementById("math").value = "";
+      document.getElementById("english").value = "";
+      document.getElementById("science").value = "";
+      showStudents();
+    }
+
+    function removeStudent() {
+      const name = prompt("Student name to remove:");
+      const index = students.findIndex(function (s) {
+        return s.name === name;
+      });
+      if (index === -1) {
+        alert("Student not found.");
+        return;
+      }
+
+      students.splice(index, 1);
+      showStudents();
+    }
+
+    function computeAverage() {
+      students.forEach(function (s) {
+        s.average = (s.math + s.english + s.science) / 3;
+      });
+      showStudents();
+    }
+
+    function showStudents() {
+      const list = document.getElementById("list");
+      list.innerHTML = "";
+
+      students.forEach(function (s) {
+        let average = "-";
+        let letter = "-";
+        let remarks = "-";
+        let color = "black";
+
+        if (s.average !== null) {
+          average = s.average.toFixed(2);
+          letter = getLetter(s.average);
+          if (s.average >= 60) {
+            remarks = "Passed";
+            color = "green";
+          } else {
+            remarks = "Failed";
+            color = "red";
+          }
+        }
+
+        list.innerHTML +=
+          "<tr>" +
+          "<td>" + s.name + "</td>" +
+          "<td>" + s.math + "</td>" +
+          "<td>" + s.english + "</td>" +
+          "<td>" + s.science + "</td>" +
+          "<td>" + average + "</td>" +
+          "<td>" + letter + "</td>" +
+          "<td style='color:" + color + "'>" + remarks + "</td>" +
+          "</tr>";
+      });
+    }
+  </script>
+</body>
+</html>
